@@ -1,0 +1,45 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "biblioteca-cqrs.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "biblioteca-cqrs.labels" . | nindent 4 }}
+data:
+  # Spring Boot Configuration
+  SPRING_PROFILES_ACTIVE: {{ .Values.env.SPRING_PROFILES_ACTIVE | quote }}
+  SERVER_PORT: {{ .Values.env.SERVER_PORT | quote }}
+  
+  # Database Configuration
+  SPRING_DATASOURCE_URL: {{ include "biblioteca-cqrs.database.url" . | quote }}
+  SPRING_DATASOURCE_USERNAME: {{ .Values.postgresql.auth.username | quote }}
+  
+  # JPA/Hibernate Configuration
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+  SPRING_JPA_SHOW_SQL: "false"
+  SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: "org.hibernate.dialect.PostgreSQLDialect"
+  SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+  
+  # Actuator Configuration
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: {{ .Values.env.MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE | quote }}
+  MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: {{ .Values.env.MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS | quote }}
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+  MANAGEMENT_HEALTH_LIVENESSSTATE_ENABLED: "true"
+  MANAGEMENT_HEALTH_READINESSSTATE_ENABLED: "true"
+  
+  # Logging Configuration
+  LOGGING_LEVEL_ROOT: {{ .Values.env.LOGGING_LEVEL_ROOT | quote }}
+  LOGGING_LEVEL_COM_BIBLIOTECA: {{ .Values.env.LOGGING_LEVEL_COM_BIBLIOTECA | quote }}
+  LOGGING_PATTERN_CONSOLE: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+  
+  {{- if .Values.newrelic.enabled }}
+  # New Relic Configuration
+  JAVA_TOOL_OPTIONS: "-javaagent:/opt/newrelic/newrelic/newrelic.jar"
+  NEW_RELIC_APP_NAME: {{ .Values.newrelic.appName | quote }}
+  NEW_RELIC_DISTRIBUTED_TRACING_ENABLED: {{ .Values.newrelic.distributedTracingEnabled | quote }}
+  NEW_RELIC_LABELS: {{ .Values.newrelic.labels | quote }}
+  NEW_RELIC_LOG_FILE_NAME: "STDOUT"
+  NEW_RELIC_LOG_LEVEL: "info"
+  {{- end }}
+{{- end }}

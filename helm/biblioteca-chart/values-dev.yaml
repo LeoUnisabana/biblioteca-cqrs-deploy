@@ -1,0 +1,57 @@
+# ==========================================
+# VALORES PARA AMBIENTE DE DESARROLLO
+# ==========================================
+
+replicaCount: 1
+
+image:
+  repository: leounisabana/biblioteca-cqrs
+  tag: 1.0.2
+  pullPolicy: Always  # Siempre pull en dev para obtener últimos cambios
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: 500m
+    memory: 768Mi
+
+# HPA deshabilitado en dev (no necesario)
+autoscaling:
+  enabled: false
+
+# PostgreSQL con recursos mínimos
+postgresql:
+  enabled: true
+  persistence:
+    size: 500Mi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+# New Relic con labels de desarrollo
+newrelic:
+  enabled: true
+  appName: biblioteca-cqrs-dev
+  labels: "Environment:development;Team:arquitectura;Project:biblioteca;Cluster:kind"
+
+# Variables de entorno para desarrollo
+env:
+  SPRING_PROFILES_ACTIVE: dev
+  LOGGING_LEVEL_ROOT: DEBUG
+  LOGGING_LEVEL_COM_BIBLIOTECA: TRACE
+  MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: always
+
+# Probes ajustados para New Relic (el agent agrega ~20-30s de overhead)
+livenessProbe:
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+readinessProbe:
+  initialDelaySeconds: 115
+  periodSeconds: 5

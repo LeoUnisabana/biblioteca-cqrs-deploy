@@ -1,0 +1,33 @@
+apiVersion: v2
+name: biblioteca-cqrs
+description: Helm Chart para Biblioteca CQRS - Sistema de gestión de biblioteca con arquitectura CQRS/Event Sourcing
+type: application
+version: 1.0.0
+appVersion: "1.0.2"
+
+keywords:
+  - biblioteca
+  - cqrs
+  - event-sourcing
+  - spring-boot
+  - postgresql
+
+maintainers:
+  - name: LeoUnisabana
+    email: leonardo.mejia@unisabana.edu.co
+    url: https://github.com/LeoUnisabana
+
+sources:
+  - https://github.com/LeoUnisabana/biblioteca-cqrs-deploy
+  - https://github.com/LeoUnisabana/biblioteca-cqrs
+
+home: https://github.com/LeoUnisabana/biblioteca-cqrs-deploy
+
+icon: https://raw.githubusercontent.com/helm/helm/main/docs/logos/helm.svg
+
+# Dependencias opcionales (descomentarlas si quieres usar charts de PostgreSQL de Bitnami)
+# dependencies:
+#   - name: postgresql
+#     version: "15.2.0"
+#     repository: "https://charts.bitnami.com/bitnami"
+#     condition: postgresql.enabled

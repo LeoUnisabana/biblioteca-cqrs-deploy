@@ -1,0 +1,76 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: biblioteca-cqrs
+  namespace: argocd
+  # Finalizer para que ArgoCD limpie recursos al borrar la aplicación
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # Proyecto de ArgoCD (default es el proyecto por defecto)
+  project: default
+  
+  # Fuente: repositorio Git con el Helm Chart
+  source:
+    # URL del repositorio Git
+    repoURL: https://github.com/LeoUnisabana/biblioteca-cqrs-deploy
+    # Rama a usar
+    targetRevision: main
+    # Path del Helm Chart dentro del repo
+    path: helm/biblioteca-chart
+    
+    # Configuración específica de Helm
+    helm:
+      # Archivo de valores a usar (dev)
+      valueFiles:
+        - values-dev.yaml
+      
+      # Parámetros adicionales que sobreescriben valores
+      # (opcional, puedes ajustar aquí sin modificar el repo)
+      parameters:
+        - name: replicaCount
+          value: "1"
+        - name: image.tag
+          value: "1.0.2"
+  
+  # Destino: cluster y namespace donde desplegar
+  destination:
+    # Cluster local (in-cluster)
+    server: https://kubernetes.default.svc
+    # Namespace donde desplegar
+    namespace: default
+  
+  # Política de sincronización
+  syncPolicy:
+    # Sincronización automática cuando hay cambios en Git
+    automated:
+      # Hacer prune de recursos que ya no están en Git
+      prune: true
+      # Auto-heal: si alguien modifica manualmente, ArgoCD revierte
+      selfHeal: true
+      # Permitir recursos vacíos
+      allowEmpty: false
+    
+    # Opciones de sincronización
+    syncOptions:
+      # Crear namespace si no existe
+      - CreateNamespace=true
+      # Validar manifiestos antes de aplicar
+      - Validate=true
+      # Usar server-side apply (recomendado para Helm)
+      - ServerSideApply=true
+    
+    # Reintentar si falla la sincronización
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  # Ignorar diferencias en ciertos campos (útil para recursos manejados por K8s)
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas  # Ignorar diferencias en replicas si usas HPA

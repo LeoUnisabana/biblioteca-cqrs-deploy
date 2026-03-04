@@ -1,0 +1,143 @@
+# ==========================================
+# CONFIGURACION CENTRALIZADA - BIBLIOTECA CQRS
+# ==========================================
+
+# Configuración general de la aplicación
+replicaCount: 2
+
+image:
+  repository: leounisabana/biblioteca-cqrs
+  tag: 1.0.2
+  pullPolicy: IfNotPresent
+
+# Nombre de la aplicación (usado en labels, nombres de recursos, etc.)
+nameOverride: ""
+fullnameOverride: ""
+
+# Configuración del Service
+service:
+  type: ClusterIP
+  port: 8089
+  targetPort: 8089
+  annotations: {}
+
+# Configuración de recursos (CPU/Memoria)
+resources:
+  requests:
+    cpu: 250m
+    memory: 650Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# Health checks (probes)
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8089
+  initialDelaySeconds: 80
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8089
+  initialDelaySeconds: 75
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Horizontal Pod Autoscaler (HPA)
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Configuración de PostgreSQL
+postgresql:
+  # Si enabled=false, se espera una BD externa
+  enabled: true
+  image:
+    repository: postgres
+    tag: 16-alpine
+  service:
+    port: 5432
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: standard
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Credenciales de la base de datos
+  auth:
+    database: biblioteca_db
+    username: biblioteca_user
+    password: biblioteca_pass  # En producción, sobreescribir con Secret externo
+
+# Configuración de New Relic APM
+newrelic:
+  enabled: true
+  appName: biblioteca-cqrs
+  licenseKey: 31c27f317b267d415e701a03387e90d6FFFFNRAL  # En producción, usar Secret externo
+  distributedTracingEnabled: true
+  labels: "Environment:development;Team:arquitectura;Project:biblioteca"
+  # Configuración del agente Java
+  agent:
+    version: latest
+    downloadUrl: "https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip"
+
+# Variables de entorno adicionales
+env:
+  # Spring Boot
+  SPRING_PROFILES_ACTIVE: default
+  SERVER_PORT: "8089"
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus
+  MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: always
+  # Logging
+  LOGGING_LEVEL_ROOT: INFO
+  LOGGING_LEVEL_COM_BIBLIOTECA: DEBUG
+
+# Anotaciones para los pods
+podAnnotations: {}
+
+# Labels adicionales para los pods
+podLabels: {}
+
+# Security Context
+podSecurityContext:
+  runAsNonRoot: false
+  # fsGroup: 1000
+
+securityContext:
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Service Account
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""

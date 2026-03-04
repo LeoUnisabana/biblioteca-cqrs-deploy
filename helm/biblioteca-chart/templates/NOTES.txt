@@ -1,0 +1,130 @@
+===============================================================================
+🎉 BIBLIOTECA CQRS DESPLEGADO EXITOSAMENTE! 🎉
+===============================================================================
+
+Release:    {{ .Release.Name }}
+Namespace:  {{ .Release.Namespace }}
+Chart:      {{ .Chart.Name }}-{{ .Chart.Version }}
+App Version: {{ .Chart.AppVersion }}
+
+-------------------------------------------------------------------------------
+📦 COMPONENTES DESPLEGADOS:
+-------------------------------------------------------------------------------
+
+✅ Aplicación: {{ include "biblioteca-cqrs.fullname" . }}
+   - Replicas: {{ .Values.replicaCount }}
+   - Imagen: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+   {{- if .Values.autoscaling.enabled }}
+   - HPA: {{ .Values.autoscaling.minReplicas }}-{{ .Values.autoscaling.maxReplicas }} replicas
+   {{- end }}
+
+{{- if .Values.postgresql.enabled }}
+✅ PostgreSQL: {{ include "biblioteca-cqrs.postgresql.servicename" . }}
+   - Version: {{ .Values.postgresql.image.tag }}
+   - Database: {{ .Values.postgresql.auth.database }}
+   - Storage: {{ .Values.postgresql.persistence.size }}
+{{- end }}
+
+{{- if .Values.newrelic.enabled }}
+✅ New Relic APM
+   - App Name: {{ .Values.newrelic.appName }}
+   - Distributed Tracing: {{ .Values.newrelic.distributedTracingEnabled }}
+{{- end }}
+
+-------------------------------------------------------------------------------
+🌐 ACCESO A LA APLICACION:
+-------------------------------------------------------------------------------
+
+{{- if eq .Values.service.type "LoadBalancer" }}
+1. Obtener la IP externa del LoadBalancer:
+
+   export SERVICE_IP=$(kubectl get svc {{ include "biblioteca-cqrs.fullname" . }} \
+     --namespace {{ .Release.Namespace }} \
+     -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+   
+   echo "Aplicación disponible en: http://$SERVICE_IP:{{ .Values.service.port }}"
+
+{{- else if eq .Values.service.type "NodePort" }}
+1. Obtener el NodePort:
+
+   export NODE_PORT=$(kubectl get svc {{ include "biblioteca-cqrs.fullname" . }} \
+     --namespace {{ .Release.Namespace }} \
+     -o jsonpath='{.spec.ports[0].nodePort}')
+   
+   export NODE_IP=$(kubectl get nodes \
+     -o jsonpath='{.items[0].status.addresses[0].address}')
+   
+   echo "Aplicación disponible en: http://$NODE_IP:$NODE_PORT"
+
+{{- else }}
+1. Port-forward al servicio:
+
+   kubectl port-forward service/{{ include "biblioteca-cqrs.fullname" . }} \
+     {{ .Values.service.port }}:{{ .Values.service.port }} \
+     --namespace {{ .Release.Namespace }}
+
+   Luego accede a: http://localhost:{{ .Values.service.port }}
+
+{{- end }}
+
+-------------------------------------------------------------------------------
+🔍 COMANDOS UTILES:
+-------------------------------------------------------------------------------
+
+# Ver el estado de los pods
+kubectl get pods -l "app.kubernetes.io/name={{ include "biblioteca-cqrs.name" . }}" -n {{ .Release.Namespace }}
+
+# Ver logs de la aplicación
+kubectl logs -l "app.kubernetes.io/name={{ include "biblioteca-cqrs.name" . }}" -n {{ .Release.Namespace }} --tail=100 -f
+
+# Ver información del release
+helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+# Ver valores actuales
+helm get values {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+# Ver historial de revisiones
+helm history {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+{{- if .Values.autoscaling.enabled }}
+
+# Ver estado del HPA
+kubectl get hpa {{ include "biblioteca-cqrs.fullname" . }} -n {{ .Release.Namespace }}
+{{- end }}
+
+-------------------------------------------------------------------------------
+🚀 ENDPOINTS DISPONIBLES:
+-------------------------------------------------------------------------------
+
+Health Check:  /actuator/health
+Metrics:       /actuator/metrics
+Info:          /actuator/info
+API Docs:      /swagger-ui.html (si está habilitado)
+
+Ejemplos de API:
+- POST   /api/v1/libros         # Crear libro
+- GET    /api/v1/libros/{id}    # Consultar libro
+- POST   /api/v1/libros/{id}/prestar   # Prestar libro
+- POST   /api/v1/libros/{id}/devolver  # Devolver libro
+
+-------------------------------------------------------------------------------
+📊 MONITORING Y TROUBLESHOOTING:
+-------------------------------------------------------------------------------
+
+{{- if .Values.newrelic.enabled }}
+New Relic Dashboard:
+  https://one.newrelic.com/
+  → APM & Services → {{ .Values.newrelic.appName }}
+{{- end }}
+
+Si hay problemas:
+1. Verifica que todos los pods estén Running
+2. Revisa los logs: kubectl logs <pod-name> -n {{ .Release.Namespace }}
+3. Verifica el health endpoint
+4. Revisa eventos: kubectl get events -n {{ .Release.Namespace }} --sort-by='.lastTimestamp'
+
+-------------------------------------------------------------------------------
+Para más información:
+  Repo: https://github.com/LeoUnisabana/biblioteca-cqrs-deploy
+  Docs: helm show readme {{ .Chart.Name }}
+===============================================================================

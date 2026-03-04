@@ -1,0 +1,18 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "biblioteca-cqrs.postgresql.servicename" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "biblioteca-cqrs.postgresql.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.postgresql.service.port }}
+      targetPort: postgres
+      protocol: TCP
+      name: postgres
+  selector:
+    {{- include "biblioteca-cqrs.postgresql.selectorLabels" . | nindent 4 }}
+{{- end }}
