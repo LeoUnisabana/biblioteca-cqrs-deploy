@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: biblioteca-service
+spec:
+  selector:
+    app: biblioteca-cqrs
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089

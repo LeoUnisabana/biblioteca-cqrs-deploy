@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biblioteca-cqrs
+  labels:
+    app: biblioteca-cqrs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: biblioteca-cqrs
+  template:
+    metadata:
+      labels:
+        app: biblioteca-cqrs
+    spec:
+      containers:
+        - name: biblioteca-cqrs
+          image: leounisabana/biblioteca-cqrs:1.0.2
+          ports:
+            - containerPort: 8089
+          envFrom:
+            - configMapRef:
+                name: biblioteca-config
+            - secretRef:
+                name: biblioteca-secret
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 25
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
