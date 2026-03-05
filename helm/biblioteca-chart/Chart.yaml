@@ -1,6 +1,6 @@
 apiVersion: v2
 name: biblioteca-cqrs
-description: Helm Chart para Biblioteca CQRS - Sistema de gestión de biblioteca con arquitectura CQRS/Event Sourcing  
+description: Helm Chart para Biblioteca CQRS - Sistema de gestion de biblioteca con arquitectura CQRS/Event Sourcing
 type: application
 version: 1.0.0
 appVersion: "1.0.2"
