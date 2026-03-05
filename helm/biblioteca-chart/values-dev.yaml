@@ -49,9 +49,21 @@ env:
 
 # Probes ajustados para New Relic (el agent agrega ~20-30s de overhead)
 livenessProbe:
+  enabled: true
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8089
   initialDelaySeconds: 120
   periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
 
 readinessProbe:
+  enabled: true
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8089
   initialDelaySeconds: 115
   periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
