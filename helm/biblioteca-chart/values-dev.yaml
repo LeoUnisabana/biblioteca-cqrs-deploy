@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: leounisabana/biblioteca-cqrs
-  tag: "1.0.6-ddbb6ca"
+  tag: "1.0.7-abcc29d"
   pullPolicy: Always  # Siempre pull en dev para obtener últimos cambios
 
 resources:
