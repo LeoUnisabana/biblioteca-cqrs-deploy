@@ -5,3 +5,9 @@ metadata:
 data:
   SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-service:5432/library
   SPRING_DATASOURCE_USERNAME: postgres
+  NEW_RELIC_APP_NAME: "biblioteca-cqrs"
+  NEW_RELIC_LOG: "stdout"
+  NEW_RELIC_LOG_LEVEL: "info"
+  JAVA_TOOL_OPTIONS: "-javaagent:/opt/newrelic/newrelic/newrelic.jar"
+  NEW_RELIC_DISTRIBUTED_TRACING_ENABLED: "true"
+  NEW_RELIC_LABELS: "Environment:development;Team:arquitectura;Project:biblioteca"

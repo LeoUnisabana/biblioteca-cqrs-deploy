@@ -14,9 +14,31 @@ spec:
       labels:
         app: biblioteca-cqrs
     spec:
+      volumes:
+        - name: newrelic-agent
+          emptyDir: {}
+      
+      initContainers:
+        - name: download-newrelic-agent
+          image: alpine:latest
+          command:
+            - sh
+            - -c
+            - |
+              apk add --no-cache curl unzip && \
+              echo "Descargando New Relic Java Agent..." && \
+              curl -L https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip -o /tmp/newrelic-java.zip && \
+              echo "Extrayendo agente..." && \
+              unzip /tmp/newrelic-java.zip -d /mnt/newrelic && \
+              echo "Agente instalado correctamente:" && \
+              ls -la /mnt/newrelic/newrelic
+          volumeMounts:
+            - name: newrelic-agent
+              mountPath: /mnt/newrelic
+      
       containers:
         - name: biblioteca-cqrs
-          image: leounisabana/biblioteca-cqrs:1.0.2
+          image: leounisabana/biblioteca-cqrs:2.0.0
           ports:
             - containerPort: 8089
           envFrom:
@@ -24,12 +46,16 @@ spec:
                 name: biblioteca-config
             - secretRef:
                 name: biblioteca-secret
+          
+          volumeMounts:
+            - name: newrelic-agent
+              mountPath: /opt/newrelic
 
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8089
-            initialDelaySeconds: 30
+            initialDelaySeconds: 120
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
@@ -38,15 +64,15 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8089
-            initialDelaySeconds: 25
+            initialDelaySeconds: 120
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
 
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "250m"
+              memory: "650Mi"
             limits:
               cpu: "500m"
               memory: "1Gi"
