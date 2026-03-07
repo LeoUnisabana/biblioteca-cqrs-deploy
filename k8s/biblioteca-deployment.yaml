@@ -38,7 +38,7 @@ spec:
       
       containers:
         - name: biblioteca-cqrs
-          image: leounisabana/biblioteca-cqrs:2.0.0
+          image: leounisabana/biblioteca-cqrs:3.0.0
           ports:
             - containerPort: 8089
           envFrom:
