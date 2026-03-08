@@ -27,9 +27,6 @@ spec:
       
       # Parámetros adicionales que sobreescriben valores
       # (opcional, puedes ajustar aquí sin modificar el repo)
-      parameters:
-        - name: replicaCount
-          value: "1"
   
   # Destino: cluster y namespace donde desplegar
   destination:
