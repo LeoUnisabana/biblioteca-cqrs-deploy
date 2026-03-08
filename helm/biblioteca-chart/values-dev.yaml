@@ -16,9 +16,13 @@ resources:
     cpu: 500m
     memory: 768Mi
 
-# HPA deshabilitado en dev (no necesario)
+# HPA habilitado en dev para pruebas de escalado
 autoscaling:
-  enabled: false
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
 
 # PostgreSQL con recursos mínimos
 postgresql:
