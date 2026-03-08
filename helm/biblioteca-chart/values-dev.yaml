@@ -13,7 +13,7 @@ resources:
     cpu: 100m
     memory: 512Mi
   limits:
-    cpu: 100m
+    cpu: 300m
     memory: 512Mi
 
 # HPA habilitado en dev para pruebas de escalado
