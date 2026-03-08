@@ -2,7 +2,7 @@
 # VALORES PARA AMBIENTE DE DESARROLLO
 # ==========================================
 
-replicaCount: 4
+replicaCount: 2
 
 image:
   repository: leounisabana/biblioteca-cqrs
