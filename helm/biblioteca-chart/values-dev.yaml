@@ -13,8 +13,8 @@ resources:
     cpu: 100m
     memory: 512Mi
   limits:
-    cpu: 300m
-    memory: 512Mi
+    cpu: 500m
+    memory: 768Mi
 
 # HPA habilitado en dev para pruebas de escalado
 autoscaling:
