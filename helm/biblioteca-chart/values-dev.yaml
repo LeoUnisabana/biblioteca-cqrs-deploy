@@ -10,11 +10,11 @@ image:
 
 resources:
   requests:
-    cpu: 100m
-    memory: 512Mi
+    cpu: 50m
+    memory: 128Mi
   limits:
-    cpu: 500m
-    memory: 768Mi
+    cpu: 100m
+    memory: 256Mi
 
 # HPA habilitado en dev para pruebas de escalado
 autoscaling:
